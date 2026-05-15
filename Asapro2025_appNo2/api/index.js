@@ -3,8 +3,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import 'dotenv/config';// DBのコンフィグへアクセス
-import db from './src/db/pool.js'; // DBプールをインポート
-import authMiddleware from './src/middleware/auth.js' //認証APIのインポート
+import db from '../src/db/pool.js'; // DBプールをインポート
+import authMiddleware from '../src/middleware/auth.js' //認証APIのインポート
 
 import admin from 'firebase-admin';
 import { read } from "fs";
@@ -792,6 +792,5 @@ app.patch("/api/comments/:id", authMiddleware, async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+// ▼ Vercel用にこれだけ追加する！
+module.exports = app;
