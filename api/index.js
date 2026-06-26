@@ -48,29 +48,26 @@ async function writeJsonFile(filename, data) {
 
 // === JSONファイル読み込み (同期版) ===
 
-// 1. 現在のファイルのディレクトリパスを安全に取得
-const _filename = fileURLToPath(import.meta.url);
-const _dirname = path.dirname(_filename);
+//// すでに初期化されていないかチェック（Next.jsなどで複数回実行されるのを防ぐため）
+if (!admin.apps.length) {
+  // 1. Vercelの環境変数からBase64文字列を取得
+  const base64String = process.env.GOOGLE_CREDENTIALS_BASE64;
 
-// 2. serviceAccountKey.json へのパスを構築
-// 本番環境 (Render) かどうかを判定
-const isProduction = process.env.NODE_ENV === 'production';
+  if (!base64String) {
+    throw new Error('環境変数 GOOGLE_CREDENTIALS_BASE64 が設定されていません');
+  }
 
-// パスを切り替える
-const serviceAccountPath = isProduction
-    ? '/etc/secrets/serviceAccountKey.json'        // 本番: Renderの指定場所
-    : path.join(_dirname, 'serviceAccountKey.json'); // ローカル: プロジェクト内
+  // 2. Base64文字列をデコードしてJSONオブジェクトに変換
+  const buffer = Buffer.from(base64String, 'base64');
+  const serviceAccount = JSON.parse(buffer.toString('utf-8'));
 
-// 3. ファイルを「同期的に」読み込む (readFileSync)
-const serviceAccountRaw = fs.readFileSync(serviceAccountPath, 'utf8');
-
-// 4. 読み込んだ文字列をJSONオブジェクトに変換
-const serviceAccount = JSON.parse(serviceAccountRaw);
-
-// === 秘密鍵の引き渡しとfirebaseの初期化 ===
-admin.initializeApp({
+  // 3. Firebase Admin SDKの初期化（Renderでファイルを渡していたのと同じ状態）
+  admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
-});
+  });
+}
+
+export default admin;
 
 // API 
 /*前のjsonファイル参照
@@ -793,4 +790,4 @@ app.patch("/api/comments/:id", authMiddleware, async (req, res) => {
 });
 
 // ▼ Vercel用にこれだけ追加する！
-module.exports = app;
+export default app;
