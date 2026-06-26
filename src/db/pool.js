@@ -19,3 +19,4 @@ pool.connect((err, client, release) => {
 
 // 他のファイルからDB操作ができるように、query関数をエクスポート
 export const query = (text, params) => pool.query(text, params);
+export default { query };
