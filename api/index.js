@@ -67,8 +67,6 @@ if (!admin.apps.length) {
   });
 }
 
-export default admin;
-
 // API 
 /*前のjsonファイル参照
 app.get("/api/classrooms", async (req, res) => {
