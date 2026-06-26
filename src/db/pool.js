@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+import Pool from 'pg';
 
 // 環境変数を使って接続プールを作成
 const pool = new Pool({
@@ -21,6 +21,6 @@ pool.connect((err, client, release) => {
 });
 
 // 他のファイルからDB操作ができるように、query関数をエクスポート
-module.exports = {
+export default {
   query: (text, params) => pool.query(text, params),
 };
