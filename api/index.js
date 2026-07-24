@@ -336,8 +336,8 @@ app.post("/api/comments", authMiddleware, async (req, res) => {
     try {
         // 2. DBに保存 (RETURNING * で保存した行の全情報を返す)
         const sql = `
-      INSERT INTO comments (content, user_id, classroom_id, time_slot_day, time_slot_period) 
-      VALUES ($1, $2, $3, $4, $5) 
+      INSERT INTO comments (content, user_id, classroom_id, time_slot_day, time_slot_period, created_at) 
+      VALUES ($1, $2, $3, $4, $5, NOW()) 
       RETURNING *
     `;
         // $1, $2, $3, $4 に対応する値を配列で渡す
@@ -514,8 +514,8 @@ app.post("/api/comments/:id/like", authMiddleware, async (req, res) => {
         // (user_id, comment_id) の組み合わせが競合(CONFLICT)したら、
         // DO NOTHING (何もしない)
         const insertQuery = `
-            INSERT INTO comment_likes (user_id, comment_id)
-            VALUES ($1, $2)
+            INSERT INTO comment_likes (user_id, comment_id, created_at)
+            VALUES ($1, $2, NOW())
             ON CONFLICT (user_id, comment_id) 
             DO NOTHING;
         `;
@@ -710,7 +710,7 @@ app.post('/api/auth/sync', async (req, res) => {
             // --- 初回ログインの場合 (INSERT) ---
             console.log('初回ログイン。ユーザーを作成します...');
             const insertResult = await db.query(
-                'INSERT INTO users (firebase_uid, email) VALUES ($1, $2) RETURNING id, email',
+                'INSERT INTO users (firebase_uid, email, created_at) VALUES ($1, $2, NOW()) RETURNING id, email',
                 [firebase_uid, email]
             );
 
